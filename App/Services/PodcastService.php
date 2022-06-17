@@ -81,6 +81,6 @@ class PodcastService
 
   private function format_search_name($name)
   {
-    return  Accents::remove(str_replace(' ', '+', strtolower($name)));
+    return Accents::remove(str_replace(' ', '+', strtolower($name)));
   }
 }

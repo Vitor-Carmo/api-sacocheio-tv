@@ -20,7 +20,7 @@ class UserService
 
     try {
       $user = User::login($data['email'], $data['senha']);
-      return  json_decode($user);
+      return json_decode($user);
     } catch (\Exception $e) {
       return array('error' => $e->getMessage());
     }
