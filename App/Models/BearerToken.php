@@ -5,7 +5,6 @@ namespace App\Models;
 /** 
  * Get hearder Authorization
  * */
-
 class BearerToken
 {
 
@@ -14,31 +13,36 @@ class BearerToken
     $headers = null;
     if (isset($_SERVER['Authorization'])) {
       $headers = trim($_SERVER["Authorization"]);
-    } else if (isset($_SERVER['HTTP_AUTHORIZATION'])) { //Nginx or fast CGI
-      $headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
-    } elseif (function_exists('apache_request_headers')) {
-      $requestHeaders = apache_request_headers();
-      // Server-side fix for bug in old Android versions (a nice side-effect of this fix means we don't care about capitalization for Authorization)
-      $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
-      //print_r($requestHeaders);
-      if (isset($requestHeaders['Authorization'])) {
-        $headers = trim($requestHeaders['Authorization']);
-      }
+      return $headers;
     }
-    return $headers;
+    if (isset($_SERVER['HTTP_AUTHORIZATION'])) { //Nginx or fast CGI
+      $headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
+      return $headers;
+    }
+    if (function_exists('apache_request_headers') && apache_request_headers()['Authorization']) {
+      $requestHeaders = apache_request_headers();
+      $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
+      $headers = trim($requestHeaders['Authorization']);
+      return $headers;
+    }
+    return null;
   }
+
   /**
    * get access token from header
    * */
   public static function getBearerToken()
   {
     $headers = self::getAuthorizationHeader();
-    // HEADER: Get the access token from the header
-    if (!empty($headers)) {
-      if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
-        return $matches[1];
-      }
+    if (!$headers) {
+      return null;
     }
-    return null;
+
+    $does_it_match = preg_match('/Bearer\s(\S+)/', $headers, $matches) === 1;
+    if (!$does_it_match) {
+      return null;
+    }
+
+    return $matches[1];
   }
 }
