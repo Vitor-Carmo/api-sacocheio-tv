@@ -473,5 +473,6 @@ composer.lock
 *.sass.map
 *.scss.map
 
+.idea
 
 teste.php
