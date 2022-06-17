@@ -38,7 +38,9 @@ class BearerToken
       return null;
     }
 
+    $matches = [];
     $does_it_match = preg_match('/Bearer\s(\S+)/', $headers, $matches) === 1;
+
     if (!$does_it_match) {
       return null;
     }
