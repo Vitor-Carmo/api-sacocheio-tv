@@ -17,14 +17,14 @@ class ShowsService
     preg_match_all($regex02, $content, $hour);
     preg_match_all($regex03, $content, $place);
 
-    $schedule = array();
+    $schedule = [];
 
     for ($i = 0; $i < \MAX_SCHEDULE_LENGTH; $i++) {
-      $schedule[$i] = array(
+      $schedule[$i] = [
         'place' => strip_tags($place[2][$i]),
         'date' =>  strip_tags(str_replace("&nbsp", " ", $date[2][$i])),
         'hour' => strip_tags($hour[2][$i]),
-      );
+      ];
     }
 
     return $schedule;

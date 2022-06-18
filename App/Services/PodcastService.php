@@ -14,13 +14,13 @@ class PodcastService
     $token = BearerToken::getBearerToken();
 
     if (!$token) {
-      return array('error' => 'Invalid token');
+      return ['error' => 'Invalid token'];
     }
 
     $podcasts = Podcast::All($token);
 
     if (!$podcasts) {
-      return array('error' => 'No podcasts found');
+      return ['error' => 'No podcasts found'];
     }
 
     return $podcasts;
@@ -32,21 +32,21 @@ class PodcastService
 
     $podcast = Podcast::find($name);
     if (!$podcast) {
-      return array(
+      return [
         'error' => 'Podcast not found',
         'name' => $name,
         'url' => \SACOCHEIO_API_BASE_URL . "programas/0?nomePrograma=$name"
-      );
+      ];
     }
 
     $episodes = Podcast::episodes($name);
 
     if (!$episodes) {
-      return array(
+      return [
         'error' => 'No episodes found',
         'name' => $name,
         'url' => \SACOCHEIO_API_BASE_URL . "episodios?nomePrograma=$name"
-      );
+      ];
     }
 
     $podcast->episodes = ['data' => [], 'length' => 0];
@@ -61,13 +61,13 @@ class PodcastService
     $bearer = BearerToken::getBearerToken();
 
     if (!$bearer) {
-      return array('error' => 'Invalid token');
+      return ['error' => 'Invalid token'];
     }
 
     $podcasts = Podcast::All($bearer);
 
     if (!$podcasts) {
-      return array('error' => 'No podcasts found');
+      return ['error' => 'No podcasts found'];
     }
 
     foreach ($podcasts as $podcast) {
