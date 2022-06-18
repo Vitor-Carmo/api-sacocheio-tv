@@ -16,46 +16,34 @@ if (!isset($_GET['url'])) {
 
 $url = explode('/', $_GET['url']);
 
-if ($url[0] !== 'api') {
-  return;
-}
+if ($url[0] !== 'api') return;
 
 
 array_shift($url);
-
 $service = 'App\Services\\' . ucfirst($url[0]) . 'Service';
-array_shift($url);
-
-//$method = strtolower($_SERVER['REQUEST_METHOD']);
-
-if (\count($url)  < 1) {
-  echo json_encode(['status' => false, 'error' => "No method specified"]);
-  http_response_code(404);
-  return;
-}
-
-$method = $url[0];
-
-$params = [];
-
-array_shift($url);
-$params = $url;
 
 if (!class_exists($service)) {
   echo json_encode(['status' => false, 'error' => "Service not found"]);
   http_response_code(404);
-  return;
+  exit;
 }
 
-if(!method_exists($service, $method)) {
+array_shift($url);
+
+$method = !$url ? null : $url[0];
+
+if (!method_exists($service, $method)) {
   echo json_encode(['status' => false, 'error' => "Method not found"]);
   http_response_code(404);
-  return;
+  exit;
 }
+
+$params = [];
+array_shift($url);
+$params = $url;
 
 try {
   $response = call_user_func_array([new $service, $method], $params);
-
   http_response_code(200);
   echo json_encode(['status' => true, 'data' => $response], JSON_UNESCAPED_UNICODE);
   exit;
