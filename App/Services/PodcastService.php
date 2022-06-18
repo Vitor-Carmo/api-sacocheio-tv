@@ -49,7 +49,9 @@ class PodcastService
       );
     }
 
-    $podcast->episodes = $episodes;
+    $podcast->episodes = ['data' => [], 'length' => 0];
+    $podcast->episodes["data"] = $episodes;
+    $podcast->episodes["length"] = \count($episodes);
 
     return $podcast;
   }
@@ -83,6 +85,10 @@ class PodcastService
   {
     if (!$code) return ['error' => 'No episode code provided'];
 
+    $token = BearerToken::getBearerToken();
+
+    if (!$token)  return ['error' => 'Invalid token'];
+
     $episode = Podcast::episode($code);
 
     if (!$episode) return ['error' => 'Episode not found'];
@@ -92,6 +98,13 @@ class PodcastService
 
     $podcast = Podcast::find($this->format_search_name($episode->autorNome));
     $podcast->episode = $episode;
+
+    $comments = Podcast::comments($code, $token);
+
+    $podcast->comments = ['data' => [], 'length' => 0];
+
+    $podcast->comments["data"] = $comments;
+    $podcast->comments["length"] = \count($comments);
 
     return $podcast;
   }

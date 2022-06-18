@@ -28,4 +28,10 @@ class Podcast
     $data = Api::get(\SACOCHEIO_API_BASE_URL . "episodios/$code");
     return json_decode($data);
   }
+
+  public static function comments($code, $token)
+  {
+    $data = Api::get(\SACOCHEIO_API_BASE_URL . "comentarios/$code", $token);
+    return json_decode($data);
+  }
 }
