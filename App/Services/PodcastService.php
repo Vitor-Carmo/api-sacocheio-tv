@@ -71,8 +71,9 @@ class PodcastService
     foreach ($podcasts as $podcast) {
       $name =  $this->format_search_name($podcast->nome);
       $episode = Podcast::episodes($name);
-
-      $podcast->latest_episode = $episode[count($episode) - 1];
+      if (count($episode) > 0) {
+        $podcast->latest_episode = $episode[count($episode) - 1];
+      }
     }
 
     return $podcasts;
