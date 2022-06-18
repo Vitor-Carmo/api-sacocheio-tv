@@ -19,11 +19,13 @@ class BearerToken
       $headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
       return $headers;
     }
-    if (function_exists('apache_request_headers') && apache_request_headers()['Authorization']) {
+    if (function_exists('apache_request_headers')) {
       $requestHeaders = apache_request_headers();
       $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
-      $headers = trim($requestHeaders['Authorization']);
-      return $headers;
+      if (isset($requestHeaders['Authorization'])) {
+        $headers = trim($requestHeaders['Authorization']);
+        return $headers;
+      }
     }
     return null;
   }

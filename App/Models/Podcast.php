@@ -4,7 +4,6 @@ namespace App\Models;
 
 class Podcast
 {
-
   public static function All($token)
   {
     $data = Api::get(\SACOCHEIO_API_BASE_URL . 'programas', $token);
@@ -17,9 +16,16 @@ class Podcast
     return json_decode($data);
   }
 
-  public static function episode($programa)
+  public static function episodes($programa)
   {
     $data = Api::get(\SACOCHEIO_API_BASE_URL . "episodios?nomePrograma=$programa");
+    return json_decode($data);
+  }
+
+
+  public static function episode($code)
+  {
+    $data = Api::get(\SACOCHEIO_API_BASE_URL . "episodios/$code");
     return json_decode($data);
   }
 }

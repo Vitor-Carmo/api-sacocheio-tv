@@ -8,7 +8,7 @@ use App\Models\BearerToken;
 
 class PodcastService
 {
-  public function listAll()
+  public function podcasts()
   {
 
     $token = BearerToken::getBearerToken();
@@ -26,7 +26,7 @@ class PodcastService
     return $podcasts;
   }
 
-  public function find($name)
+  public function podcast($name)
   {
     $name = $this->format_search_name($name);
 
@@ -39,7 +39,7 @@ class PodcastService
       );
     }
 
-    $episodes = Podcast::episode($name);
+    $episodes = Podcast::episodes($name);
 
     if (!$episodes) {
       return array(
@@ -70,7 +70,7 @@ class PodcastService
 
     foreach ($podcasts as $podcast) {
       $name =  $this->format_search_name($podcast->nome);
-      $episode = Podcast::episode($name);
+      $episode = Podcast::episodes($name);
 
       $podcast->latest_episode = $episode[count($episode) - 1];
     }
@@ -78,6 +78,22 @@ class PodcastService
     return $podcasts;
   }
 
+  public function episode($code)
+  {
+    if (!$code) return ['error' => 'No episode code provided'];
+
+    $episode = Podcast::episode($code);
+
+    if (!$episode) return ['error' => 'Episode not found'];
+
+
+    $episode->audio = \SACOCHEIO_RSS_BASE_URL . "$episode->autor/$episode->codigo/$episode->urlMp3";
+
+    $podcast = Podcast::find($this->format_search_name($episode->autorNome));
+    $podcast->episode = $episode;
+
+    return $podcast;
+  }
 
   private function format_search_name($name)
   {
