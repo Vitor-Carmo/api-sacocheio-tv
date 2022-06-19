@@ -42,6 +42,12 @@ $params = [];
 array_shift($url);
 $params = $url;
 
+if ((new \ReflectionMethod($service, $method))->isPrivate()) {
+  echo json_encode(['status' => false, 'error' => "Method is private"]);
+  http_response_code(404);
+  exit;
+}
+
 try {
   $response = call_user_func_array([new $service, $method], $params);
   http_response_code(200);
