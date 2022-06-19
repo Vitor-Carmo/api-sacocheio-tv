@@ -476,3 +476,4 @@ composer.lock
 .idea
 
 teste.php
+env.php
