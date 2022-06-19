@@ -26,8 +26,10 @@ class PodcastService
     return $podcasts;
   }
 
-  public function podcast($name)
+  public function podcast($name = "")
   {
+    if (!$name)  return ['error' => 'No podcast name specified'];
+
     $name = $this->format_search_name($name);
 
     $podcast = Podcast::find($name);
@@ -81,7 +83,7 @@ class PodcastService
     return $podcasts;
   }
 
-  public function episode($code)
+  public function episode($code = null)
   {
     if (!$code) return ['error' => 'No episode code provided'];
 
