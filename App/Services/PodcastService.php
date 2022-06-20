@@ -72,11 +72,14 @@ class PodcastService
       return ['error' => 'No podcasts found'];
     }
 
-    foreach ($podcasts as $podcast) {
+    foreach ($podcasts as $key => $podcast) {
       $name =  $this->format_search_name($podcast->nome);
       $episode = Podcast::episodes($name);
+
       if (count($episode) > 0) {
         $podcast->latest_episode = $episode[count($episode) - 1];
+      } else {
+        unset($podcasts[$key]);
       }
     }
 
