@@ -114,6 +114,20 @@ class PodcastService
     return $podcast;
   }
 
+  public function favorites()
+  {
+    $token = BearerToken::getBearerToken();
+
+    if (!$token) {
+      return ['error' => 'Invalid token'];
+    }
+
+    $favoriteEpisodes = Podcast::favorites($token);
+
+
+    return $favoriteEpisodes->episodiosFavoritos;
+  }
+
   private function format_search_name($name)
   {
     return Accents::remove(str_replace(' ', '', strtolower($name)));

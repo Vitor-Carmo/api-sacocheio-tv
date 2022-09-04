@@ -34,4 +34,10 @@ class Podcast
     $data = Api::get(\SACOCHEIO_API_BASE_URL . "comments/$code", $token);
     return json_decode($data);
   }
+
+  public static function favorites($token)
+  {
+    $data = Api::get(\SACOCHEIO_API_BASE_URL . "episodios/getFavoritos", $token);
+    return json_decode($data);
+  }
 }

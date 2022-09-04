@@ -45,6 +45,25 @@ class PodcastServiceTest extends TestCase
     $this->assertObjectHasAttribute('error', $podcasts->data);
   }
 
+  public function testShouldListFavoriteEpisodes()
+  {
+    $user = $this->getUser();
+    $token = $user->token;
+    $this->assertIsString($token);
+
+    $favorites = Api::get(\LOCAL_BASE_URL_API . "podcast/favorites", $token);
+    $favorites = json_decode($favorites);
+
+    $this->assertIsObject($favorites);
+    $this->assertSame($favorites->status, true);
+    $this->assertObjectHasAttribute('data', $favorites);
+    $this->assertIsArray($favorites->data);
+
+    if (\count($favorites->data) > 0) {
+      $this->assertSame($favorites->data[0]->isFavorite, true);
+    }
+  }
+
   public function testShouldGetPodcastEpisode()
   {
     $podcast =  urlencode("tarja preta fm");
