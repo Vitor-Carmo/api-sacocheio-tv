@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Accents;
+use App\Models\Api;
 use App\Models\Podcast;
 use App\Models\BearerToken;
 
@@ -33,21 +34,20 @@ class PodcastService
     $name = $this->format_search_name($name);
 
     $podcast = Podcast::find($name);
+
     if (!$podcast) {
       return [
         'error' => 'Podcast not found',
         'name' => $name,
-        'url' => \SACOCHEIO_API_BASE_URL . "programas/0?nomePrograma=$name"
       ];
     }
 
-    $episodes = Podcast::episodes($name);
+    $episodes = Podcast::episodes($podcast->id);
 
     if (!$episodes) {
       return [
         'error' => 'No episodes found',
         'name' => $name,
-        'url' => \SACOCHEIO_API_BASE_URL . "episodios?nomePrograma=$name"
       ];
     }
 
@@ -73,8 +73,7 @@ class PodcastService
     }
 
     foreach ($podcasts as $key => $podcast) {
-      $name =  $this->format_search_name($podcast->nome);
-      $episode = Podcast::episodes($name);
+      $episode = Podcast::episodes($podcast->id);
 
       if (count($episode) > 0) {
         $podcast->latest_episode = $episode[count($episode) - 1];
@@ -86,25 +85,27 @@ class PodcastService
     return $podcasts;
   }
 
-  public function episode($code = null)
+  public function episode($podcast, $slug = null)
   {
-    if (!$code) return ['error' => 'No episode code provided'];
+    if (!$podcast) return ['error' => 'No podcast name provided'];
+
+    if (!$slug) return ['error' => 'No episode slug provided'];
 
     $token = BearerToken::getBearerToken();
 
     if (!$token)  return ['error' => 'Invalid token'];
 
-    $episode = Podcast::episode($code);
+    $episode = Podcast::episode($slug);
 
     if (!$episode) return ['error' => 'Episode not found'];
 
+    $episode->audio = str_replace(\SACOCHEIO_PORTAL_BASE_URL  . "programacao/uploads/", \SACOCHEIO_RSS_BASE_URL, $episode->urlMp3);
 
-    $episode->audio = \SACOCHEIO_RSS_BASE_URL . "$episode->autor/$episode->codigo/$episode->urlMp3";
+    $podcast = Podcast::find($this->format_search_name($podcast));
 
-    $podcast = Podcast::find($this->format_search_name($episode->autorNome));
     $podcast->episode = $episode;
 
-    $comments = Podcast::comments($code, $token);
+    $comments = Podcast::comments($episode->id, $token);
 
     $podcast->comments = ['data' => [], 'length' => 0];
 
@@ -116,6 +117,6 @@ class PodcastService
 
   private function format_search_name($name)
   {
-    return Accents::remove(str_replace(' ', '+', strtolower($name)));
+    return Accents::remove(str_replace(' ', '', strtolower($name)));
   }
 }

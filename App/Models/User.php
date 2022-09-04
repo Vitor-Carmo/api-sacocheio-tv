@@ -6,12 +6,14 @@ class User
 {
   public static function login($email, $senha)
   {
-    $reponse = Api::post(\SACOCHEIO_API_BASE_URL . 'login', [
+
+    $response = Api::post(\SACOCHEIO_API_BASE_URL . 'login', [
       'email' => $email,
-      'senha' => $senha
+      'password' => $senha
     ]);
 
-    return $reponse;
+    
+    return $response;
   }
 
 }

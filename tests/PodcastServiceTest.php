@@ -47,13 +47,15 @@ class PodcastServiceTest extends TestCase
 
   public function testShouldGetPodcastEpisode()
   {
-    $episode_code = 945;
+    $podcast =  urlencode("tarja preta fm");
+    $slug = "30-tarja-preta-fm";
+
     $user = $this->getUser();
 
     $token = $user->token;
     $this->assertIsString($token);
 
-    $episode = Api::get(\LOCAL_BASE_URL_API . "podcast/episode/$episode_code", $token);
+    $episode = Api::get(\LOCAL_BASE_URL_API . "/podcast/episode/$podcast/$slug", $token);
 
     $episode = json_decode($episode);
 
@@ -65,7 +67,7 @@ class PodcastServiceTest extends TestCase
     $this->assertObjectHasAttribute('episode', $episode->data);
   }
 
-  public function testIfItShowsAnArrorWhenNotPassingTheEpisodeCode()
+  public function testIfItShowsAnErrorWhenNotPassingTheEpisodeCode()
   {
     $episode = Api::get(\LOCAL_BASE_URL_API . "podcast/episode/");
     $episode = json_decode($episode);

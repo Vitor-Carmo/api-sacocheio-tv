@@ -30,11 +30,13 @@ class Api
   {
     $ch = curl_init($url);
 
-    $authorization = "Authorization: Bearer $token";
-
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', $authorization]);
+    if($token){
+      $authorization = "Authorization: Bearer $token";
+      curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', $authorization]);
+    }
+
     $response = curl_exec($ch);
 
     curl_close($ch);
