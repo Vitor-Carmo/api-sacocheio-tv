@@ -5,7 +5,7 @@ ini_set('display_startup_errors', 1);
 
 header('Content-Type: application/json');
 
-require_once '../vendor/autoload.php';
+require_once './vendor/autoload.php';
 
 
 if (!isset($_GET['url'])) {
