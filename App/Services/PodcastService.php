@@ -73,9 +73,8 @@ class PodcastService
 
     foreach ($podcasts as $key => $podcast) {
       $episode = Podcast::episodes($podcast->id);
-
       if (count($episode) > 0) {
-        $podcast->latest_episode = $episode[count($episode) - 1];
+        $podcast->latest_episode = reset($episode);
       } else {
         unset($podcasts[$key]);
       }
