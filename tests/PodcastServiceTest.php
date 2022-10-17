@@ -60,7 +60,33 @@ class PodcastServiceTest extends TestCase
     $this->assertIsArray($favorites->data);
 
     if (\count($favorites->data) > 0) {
-      $this->assertSame($favorites->data[0]->isFavorite, true);
+      foreach ($favorites->data as $favoriteEpisode) {
+        $this->assertSame($favoriteEpisode->isFavorite, true);
+      }
+    }
+  }
+
+
+  public function testShouldListFavoriteEpisodesWithLimit()
+  {
+    $user = $this->getUser();
+    $token = $user->token;
+    $this->assertIsString($token);
+
+    $limit = 3;
+    $favorites = Api::get(\LOCAL_BASE_URL_API . "podcast/favorites/$limit", $token);
+    $favorites = json_decode($favorites);
+
+    $this->assertIsObject($favorites);
+    $this->assertSame($favorites->status, true);
+    $this->assertObjectHasAttribute('data', $favorites);
+    $this->assertIsArray($favorites->data);
+
+    if (\count($favorites->data) > 0) {
+      $this->assertSame(\count($favorites->data), $limit);
+      foreach ($favorites->data as $favoriteEpisode) {
+        $this->assertSame($favoriteEpisode->isFavorite, true);
+      }
     }
   }
 

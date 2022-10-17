@@ -113,7 +113,7 @@ class PodcastService
     return $podcast;
   }
 
-  public function favorites()
+  public function favorites($limit = null)
   {
     $token = BearerToken::getBearerToken();
 
@@ -123,8 +123,9 @@ class PodcastService
 
     $favoriteEpisodes = Podcast::favorites($token);
 
-
-    return $favoriteEpisodes->episodiosFavoritos;
+    return $limit ?
+      \array_slice($favoriteEpisodes->episodiosFavoritos, 0, $limit) :
+      $favoriteEpisodes->episodiosFavoritos;
   }
 
   private function format_search_name($name)
