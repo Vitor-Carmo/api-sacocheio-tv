@@ -128,7 +128,6 @@ class PodcastService
 
     $podcast = [];
 
-    echo $limit;
     foreach ($favoriteEpisodes as $key => $episode) {
       $podcast[$key] = Podcast::find($episode->podcastName);
       $podcast[$key]->episode = $episode;
