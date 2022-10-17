@@ -123,9 +123,19 @@ class PodcastService
 
     $favoriteEpisodes = Podcast::favorites($token);
 
-    return $limit ?
-      \array_slice($favoriteEpisodes->episodiosFavoritos, 0, $limit) :
-      $favoriteEpisodes->episodiosFavoritos;
+
+    $favoriteEpisodes = $favoriteEpisodes->episodiosFavoritos;
+
+    $podcast = [];
+
+    echo $limit;
+    foreach ($favoriteEpisodes as $key => $episode) {
+      $podcast[$key] = Podcast::find($episode->podcastName);
+      $podcast[$key]->episode = $episode;
+      if ($key + 1 == $limit) break;
+    }
+
+    return $podcast;
   }
 
   private function format_search_name($name)
