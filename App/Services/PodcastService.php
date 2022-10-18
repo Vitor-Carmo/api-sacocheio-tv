@@ -50,9 +50,7 @@ class PodcastService
       ];
     }
 
-    $podcast->episodes = ['data' => [], 'length' => 0];
-    $podcast->episodes["data"] = $episodes;
-    $podcast->episodes["length"] = \count($episodes);
+    $podcast->episodes = $episodes;
 
     return $podcast;
   }
