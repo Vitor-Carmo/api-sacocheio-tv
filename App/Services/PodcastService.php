@@ -50,7 +50,27 @@ class PodcastService
       ];
     }
 
-    $podcast->episodes = $episodes;
+    $page = isset($_GET['page']) ? $_GET["page"] : null;
+
+
+    if (!$page) {
+      return [
+        'error' => 'No page number was passed in the url',
+      ];
+    }
+
+    $episodes_paged = array_chunk($episodes, 15, false);
+
+    $hasEpisodes =  array_key_exists($page, $episodes_paged);
+
+    if (!$hasEpisodes) {
+      return [
+        'error' => "page number '$page' does not exist",
+      ];
+    }
+
+    $podcast->episodes = $episodes_paged[$page];
+    $podcast->next = array_key_exists($page + 1, $episodes_paged);
 
     return $podcast;
   }
