@@ -59,7 +59,7 @@ class PodcastService
       ];
     }
 
-    $episodes_paged = array_chunk($episodes, 15, false);
+    $episodes_paged = array_chunk($episodes, 10, false);
 
     $hasEpisodes =  array_key_exists($page, $episodes_paged);
 
