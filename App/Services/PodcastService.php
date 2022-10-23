@@ -50,10 +50,10 @@ class PodcastService
       ];
     }
 
-    $page = isset($_GET['page']) ? $_GET["page"] : null;
+    $page = isset($_GET['page']) ? $_GET["page"] - 1 : null;
 
 
-    if (!$page) {
+    if ($page === false) {
       return [
         'error' => 'No page number was passed in the url',
       ];
