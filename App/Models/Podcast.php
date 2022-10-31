@@ -36,6 +36,14 @@ class Podcast
     return self::api_get_with_cache("favoritos-$token", "episodios/getFavoritos", $token);
   }
 
+  public static function set_favorite($id, $token)
+  {
+    $data = Api::post(\SACOCHEIO_API_BASE_URL . "episodioOuvinte/setFavorite", [
+      "episodioId" => $id,
+    ], $token);
+
+    return json_decode($data);
+  }
 
   private static function api_get_with_cache($file_name, $url, $token = null)
   {

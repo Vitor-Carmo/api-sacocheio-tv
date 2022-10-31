@@ -155,6 +155,32 @@ class PodcastService
     return $podcast;
   }
 
+  public function set_favorite_toggle()
+  {
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    if (!$data) {
+      return ['error' => 'Invalid data'];
+    }
+
+    if (!isset($data['episodeId'])) {
+      return ['error' => 'Invalid data: episodeId has not been passed'];
+    }
+
+    $token = BearerToken::getBearerToken();
+
+    if (!$token) {
+      return ['error' => 'Invalid token'];
+    }
+
+    try {
+      $result = Podcast::set_favorite($data['episodeId'], $token);
+      return $result;
+    } catch (\Exception $e) {
+      return ['error' => $e->getMessage()];
+    }
+  }
+
   private function format_search_name($name)
   {
     return Accents::remove(str_replace(' ', '', strtolower($name)));
