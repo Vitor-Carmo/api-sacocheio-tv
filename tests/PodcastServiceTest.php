@@ -58,10 +58,14 @@ class PodcastServiceTest extends TestCase
     $this->assertSame($favorites->status, true);
     $this->assertObjectHasAttribute('data', $favorites);
     $this->assertIsArray($favorites->data);
-
+    
     if (\count($favorites->data) > 0) {
+      $i = 0;
       foreach ($favorites->data as $favoriteEpisode) {
-        $this->assertSame($favoriteEpisode->isFavorite, true);
+        $this->assertObjectHasAttribute('episode', $favoriteEpisode);
+        $this->assertIsObject($favoriteEpisode->episode);
+        $this->assertSame($favoriteEpisode->episode->isFavorite, true);
+        if (++$i == 3) break;
       }
     }
   }
@@ -81,11 +85,15 @@ class PodcastServiceTest extends TestCase
     $this->assertSame($favorites->status, true);
     $this->assertObjectHasAttribute('data', $favorites);
     $this->assertIsArray($favorites->data);
-
+    
     if (\count($favorites->data) > 0) {
+      $i = 0;
       $this->assertSame(\count($favorites->data), $limit);
       foreach ($favorites->data as $favoriteEpisode) {
-        $this->assertSame($favoriteEpisode->isFavorite, true);
+        $this->assertObjectHasAttribute('episode', $favoriteEpisode);
+        $this->assertIsObject($favoriteEpisode->episode);
+        $this->assertSame($favoriteEpisode->episode->isFavorite, true);
+        if (++$i == 3) break;
       }
     }
   }
@@ -127,7 +135,7 @@ class PodcastServiceTest extends TestCase
   {
     $name = "desinformação";
 
-    $podcast = Api::get(\LOCAL_BASE_URL_API . "podcast/podcast/$name");
+    $podcast = Api::get(\LOCAL_BASE_URL_API . "podcast/podcast/$name?page=1");
     $podcast = json_decode($podcast);
 
     $this->assertIsObject($podcast);
@@ -136,14 +144,27 @@ class PodcastServiceTest extends TestCase
     $this->assertObjectHasAttribute('data', $podcast);
     $this->assertIsObject($podcast->data);
     $this->assertObjectHasAttribute('episodes', $podcast->data);
-    $this->assertIsObject($podcast->data->episodes);
-    $this->assertObjectHasAttribute('data', $podcast->data->episodes);
-    $this->assertIsArray($podcast->data->episodes->data);
-    $this->assertObjectHasAttribute('length', $podcast->data->episodes);
-    $this->assertIsInt($podcast->data->episodes->length);
-    $this->assertSame($podcast->data->episodes->length, count($podcast->data->episodes->data));
+    $this->assertIsArray($podcast->data->episodes);
+    $this->assertSame(\count($podcast->data->episodes), 8);
+    $this->assertObjectHasAttribute('next', $podcast->data);
+    $this->assertIsBool($podcast->data->next);
   }
 
+  public function testShouldGetErrorOnDontPassPaginationToPodcast()
+  {
+    $name = "desinformação";
+
+    $podcast = Api::get(\LOCAL_BASE_URL_API . "podcast/podcast/$name");
+    $podcast = json_decode($podcast);
+
+    $this->assertIsObject($podcast);
+    $this->assertObjectHasAttribute('status', $podcast);
+    $this->assertSame($podcast->status, true);
+    $this->assertObjectHasAttribute('data', $podcast);
+    $this->assertIsObject($podcast->data);
+    $this->assertObjectHasAttribute('error', $podcast->data);
+  }
+  
   public function testShouldGiveAnErrorWhenTryingToGetPodcastWithAnEmptyName()
   {
     $name = "";
@@ -175,5 +196,29 @@ class PodcastServiceTest extends TestCase
     foreach ($podcasts->data as $podcast) {
       $this->assertObjectHasAttribute('latest_episode', $podcast);
     }
+  }
+
+  public function testShouldToggleFavoriteEpisode()
+  {
+    $episodeId = 1047;
+
+    $user = $this->getUser();
+
+    $token = $user->token;
+    $this->assertIsString($token);
+
+    $result = Api::post(\LOCAL_BASE_URL_API . "podcast/set_favorite_toggle", [
+      "episodeId" => $episodeId
+    ], $token);
+
+    $result = json_decode($result);
+
+    $this->assertIsObject($result);
+    $this->assertObjectHasAttribute('status', $result);
+    $this->assertSame($result->status, true);
+    $this->assertObjectHasAttribute('data', $result);
+    $this->assertIsObject($result->data);
+    $this->assertObjectHasAttribute('result', $result->data);
+    $this->assertSame($result->data->result, true);
   }
 }
