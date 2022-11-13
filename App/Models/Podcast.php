@@ -46,6 +46,10 @@ class Podcast
       Cache::remove("episodios-$podcastId-$token");
     }
 
+    if (Cache::exist("favoritos-$token")) {
+      Cache::remove("favoritos-$token");
+    }
+    
     return json_decode($data);
   }
 
