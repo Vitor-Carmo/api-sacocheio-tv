@@ -146,7 +146,7 @@ class PodcastService
     $favoriteEpisodes = Podcast::favorites($token);
 
 
-    $favoriteEpisodes = $favoriteEpisodes->episodiosFavoritos;
+    $favoriteEpisodes = \array_reverse($favoriteEpisodes->episodiosFavoritos);
 
     $podcast = [];
 
