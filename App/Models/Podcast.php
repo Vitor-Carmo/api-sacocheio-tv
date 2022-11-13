@@ -10,20 +10,20 @@ class Podcast
     return self::api_get_with_cache("programas", 'podcasts', $token);
   }
 
-  public static function find($programa)
+  public static function find($programa, $token)
   {
-    return self::api_get_with_cache($programa, "podcasts/$programa");
+    return self::api_get_with_cache($programa, "podcasts/$programa", $token);
   }
 
-  public static function episodes($id)
+  public static function episodes($id, $token)
   {
-    return self::api_get_with_cache("episodios-$id", "episodios/getById/$id");
+    return self::api_get_with_cache("episodios-$id-$token", "episodios/getById/$id", $token);
   }
 
 
-  public static function episode($slug)
+  public static function episode($slug, $token)
   {
-    return self::api_get_with_cache("$slug",  "episodios/getBySlug/$slug");
+    return self::api_get_with_cache("$slug-$token",  "episodios/getBySlug/$slug", $token);
   }
 
   public static function comments($code, $token)
@@ -36,11 +36,15 @@ class Podcast
     return self::api_get_with_cache("favoritos-$token", "episodios/getFavoritos", $token);
   }
 
-  public static function set_favorite($id, $token)
+  public static function set_favorite($episodioId, $podcastId, $token)
   {
     $data = Api::post(\SACOCHEIO_API_BASE_URL . "episodioOuvinte/setFavorite", [
-      "episodioId" => $id,
+      "episodioId" => $episodioId,
     ], $token);
+
+    if (Cache::exist("episodios-$podcastId-$token")) {
+      Cache::remove("episodios-$podcastId-$token");
+    }
 
     return json_decode($data);
   }

@@ -30,9 +30,13 @@ class PodcastService
   {
     if (!$name)  return ['error' => 'No podcast name specified'];
 
+    $token = BearerToken::getBearerToken();
+
+    if (!$token)  return ['error' => 'Invalid token'];
+
     $name = $this->format_search_name($name);
 
-    $podcast = Podcast::find($name);
+    $podcast = Podcast::find($name, $token);
 
     if (!$podcast) {
       return [
@@ -41,7 +45,7 @@ class PodcastService
       ];
     }
 
-    $episodes = Podcast::episodes($podcast->id);
+    $episodes = Podcast::episodes($podcast->id, $token);
 
     if (!$episodes) {
       return [
@@ -90,7 +94,7 @@ class PodcastService
     }
 
     foreach ($podcasts as $key => $podcast) {
-      $episode = Podcast::episodes($podcast->id);
+      $episode = Podcast::episodes($podcast->id,  $bearer);
       if (count($episode) > 0) {
         $podcast->latest_episode = reset($episode);
       } else {
@@ -111,13 +115,13 @@ class PodcastService
 
     if (!$token)  return ['error' => 'Invalid token'];
 
-    $episode = Podcast::episode($slug);
+    $episode = Podcast::episode($slug, $token);
 
     if (!$episode) return ['error' => 'Episode not found'];
 
     $episode->audio = str_replace(\SACOCHEIO_PORTAL_BASE_URL  . "programacao/uploads/", \SACOCHEIO_RSS_BASE_URL, $episode->urlMp3);
 
-    $podcast = Podcast::find($this->format_search_name($podcast));
+    $podcast = Podcast::find($this->format_search_name($podcast), $token);
 
     $podcast->episode = $episode;
 
@@ -147,7 +151,7 @@ class PodcastService
     $podcast = [];
 
     foreach ($favoriteEpisodes as $key => $episode) {
-      $podcast[$key] = Podcast::find($episode->podcastName);
+      $podcast[$key] = Podcast::find($episode->podcastName, $token);
       $podcast[$key]->episode = $episode;
       if ($key + 1 == $limit) break;
     }
@@ -163,8 +167,8 @@ class PodcastService
       return ['error' => 'Invalid data'];
     }
 
-    if (!isset($data['episodeId'])) {
-      return ['error' => 'Invalid data: episodeId has not been passed'];
+    if (!isset($data['episodeId']) || !isset($data['podcastId'])) {
+      return ['error' => 'Invalid data: episodeId pr podcastId has not been passed'];
     }
 
     $token = BearerToken::getBearerToken();
@@ -174,7 +178,7 @@ class PodcastService
     }
 
     try {
-      $result = Podcast::set_favorite($data['episodeId'], $token);
+      $result = Podcast::set_favorite($data['episodeId'], $data['podcastId'], $token);
       return $result;
     } catch (\Exception $e) {
       return ['error' => $e->getMessage()];

@@ -58,7 +58,7 @@ class PodcastServiceTest extends TestCase
     $this->assertSame($favorites->status, true);
     $this->assertObjectHasAttribute('data', $favorites);
     $this->assertIsArray($favorites->data);
-    
+
     if (\count($favorites->data) > 0) {
       $i = 0;
       foreach ($favorites->data as $favoriteEpisode) {
@@ -85,7 +85,7 @@ class PodcastServiceTest extends TestCase
     $this->assertSame($favorites->status, true);
     $this->assertObjectHasAttribute('data', $favorites);
     $this->assertIsArray($favorites->data);
-    
+
     if (\count($favorites->data) > 0) {
       $i = 0;
       $this->assertSame(\count($favorites->data), $limit);
@@ -133,9 +133,13 @@ class PodcastServiceTest extends TestCase
 
   public function testShouldGetThePodcastAndItsEpisodesByName()
   {
+    $user = $this->getUser();
+    $token = $user->token;
+    $this->assertIsString($token);
+
     $name = "desinformação";
 
-    $podcast = Api::get(\LOCAL_BASE_URL_API . "podcast/podcast/$name?page=1");
+    $podcast = Api::get(\LOCAL_BASE_URL_API . "podcast/podcast/$name?page=1", $token);
     $podcast = json_decode($podcast);
 
     $this->assertIsObject($podcast);
@@ -152,9 +156,13 @@ class PodcastServiceTest extends TestCase
 
   public function testShouldGetErrorOnDontPassPaginationToPodcast()
   {
+    $user = $this->getUser();
+    $token = $user->token;
+    $this->assertIsString($token);
+
     $name = "desinformação";
 
-    $podcast = Api::get(\LOCAL_BASE_URL_API . "podcast/podcast/$name");
+    $podcast = Api::get(\LOCAL_BASE_URL_API . "podcast/podcast/$name", $token);
     $podcast = json_decode($podcast);
 
     $this->assertIsObject($podcast);
@@ -164,7 +172,7 @@ class PodcastServiceTest extends TestCase
     $this->assertIsObject($podcast->data);
     $this->assertObjectHasAttribute('error', $podcast->data);
   }
-  
+
   public function testShouldGiveAnErrorWhenTryingToGetPodcastWithAnEmptyName()
   {
     $name = "";
@@ -200,7 +208,8 @@ class PodcastServiceTest extends TestCase
 
   public function testShouldToggleFavoriteEpisode()
   {
-    $episodeId = 1047;
+    $episodeId = 4; // desinformação
+    $podcastId = 5849; // #205 - Carbono vs. Silício (part. Sérgio Sacani)
 
     $user = $this->getUser();
 
@@ -208,7 +217,8 @@ class PodcastServiceTest extends TestCase
     $this->assertIsString($token);
 
     $result = Api::post(\LOCAL_BASE_URL_API . "podcast/set_favorite_toggle", [
-      "episodeId" => $episodeId
+      "episodeId" => $episodeId,
+      "podcastId" => $podcastId
     ], $token);
 
     $result = json_decode($result);

@@ -13,7 +13,7 @@ class Cache
     $file_date = \strtotime(\date("F d Y H:i:s.", \filemtime(self::file_path($name))));
     $expired_date =  \strtotime(\date("m/d/Y h:i:s a", $file_date + self::TIME_TO_EXPIRED));
     if (\time() > $expired_date) {
-      unlink(self::file_path($name));
+      self::remove($name);
       return;
     }
   }
@@ -22,6 +22,11 @@ class Cache
   {
     self::create_cache_folder();
     \file_put_contents(self::file_path($name), $data);
+  }
+
+  public static function remove($name)
+  {
+    unlink(self::file_path($name));
   }
 
   public static function get($name)
@@ -43,6 +48,6 @@ class Cache
 
   private static function file_path($name)
   {
-    return  self::PATH . $name . ".json";
+    return  self::PATH . hash("sha256", $name) . ".json";
   }
 }
