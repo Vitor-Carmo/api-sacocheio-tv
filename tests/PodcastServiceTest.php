@@ -231,4 +231,83 @@ class PodcastServiceTest extends TestCase
     $this->assertObjectHasAttribute('result', $result->data);
     $this->assertSame($result->data->result, true);
   }
+
+  public function testShouldSendCommentAndRemove()
+  {
+    $episodeId = 598; // acervo saco cheio
+    $comment = "hello";
+
+    $user = $this->getUser();
+
+    $token = $user->token;
+    $this->assertIsString($token);
+
+    $result = Api::post(\LOCAL_BASE_URL_API . "podcast/send_comment", [
+      "episodeId" => $episodeId,
+      "comment" => $comment
+    ], $token);
+
+    $result = json_decode($result);
+
+    $this->assertIsObject($result);
+    $this->assertObjectHasAttribute('status', $result);
+    $this->assertSame($result->status, true);
+    $this->assertObjectHasAttribute('data', $result);
+    $this->assertIsObject($result->data);
+    $this->assertObjectHasAttribute('result', $result->data);
+    $this->assertSame($result->data->result, true);
+
+    $podcast =  "acervopodcastsacocheio";
+    $slug = "especial-copa-do-mundo-2018-1";
+
+    $user = $this->getUser();
+
+    $token = $user->token;
+    $this->assertIsString($token);
+
+    $episode = Api::get(\LOCAL_BASE_URL_API . "/podcast/episode/$podcast/$slug", $token);
+
+    $episode = json_decode($episode);
+
+    $this->assertIsObject($episode);
+    $this->assertObjectHasAttribute('status', $episode);
+    $this->assertSame($episode->status, true);
+    $this->assertObjectHasAttribute('data', $episode);
+    $this->assertIsObject($episode->data);
+    $this->assertObjectHasAttribute('comments', $episode->data);
+    $this->assertIsObject($episode->data->comments);
+    $this->assertObjectHasAttribute('data', $episode->data->comments);
+    $this->assertObjectHasAttribute('length', $episode->data->comments);
+    $this->assertIsArray($episode->data->comments->data);
+
+    $founded = false;
+
+    foreach ($episode->data->comments->data as $commentContent) {
+      if ($commentContent->comentario === $comment) {
+        $founded = true;
+        $removedComment =  Api::post(
+          \LOCAL_BASE_URL_API . "/podcast/remove_comment",
+          [
+            "commentId" => $commentContent->cod,
+            "episodeId" => $episodeId,
+          ],
+          $token
+        );
+
+        $removedComment = json_decode($removedComment);
+
+        $this->assertIsObject($removedComment);
+        $this->assertObjectHasAttribute('status', $removedComment);
+        $this->assertSame($removedComment->status, true);
+        $this->assertObjectHasAttribute('data', $episode);
+        $this->assertIsObject($removedComment->data);
+        $this->assertObjectHasAttribute('result', $removedComment->data);
+        $this->assertIsBool($removedComment->data->result);
+        $this->assertSame($removedComment->data->result, true);
+        break;
+      }
+    }
+
+    $this->assertSame($founded, true);
+  }
 }

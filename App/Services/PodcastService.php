@@ -94,11 +94,12 @@ class PodcastService
     }
 
     foreach ($podcasts as $key => $podcast) {
-      $episode = Podcast::episodes($podcast->id,  $bearer);
-      if (count($episode) > 0) {
-        $podcast->latest_episode = reset($episode);
+      $episodes = Podcast::episodes($podcast->id,  $bearer);
+      if (count($episodes) > 0) {
+        $podcast->latest_episode = reset($episodes);
       } else {
         unset($podcasts[$key]);
+        $podcasts = array_values($podcasts);
       }
     }
 
@@ -168,7 +169,7 @@ class PodcastService
     }
 
     if (!isset($data['episodeId']) || !isset($data['podcastId'])) {
-      return ['error' => 'Invalid data: episodeId pr podcastId has not been passed'];
+      return ['error' => 'Invalid data: episodeId or podcastId has not been passed'];
     }
 
     $token = BearerToken::getBearerToken();
@@ -180,6 +181,67 @@ class PodcastService
     try {
       $result = Podcast::set_favorite($data['episodeId'], $data['podcastId'], $token);
       return $result;
+    } catch (\Exception $e) {
+      return ['error' => $e->getMessage()];
+    }
+  }
+
+  public function send_comment()
+  {
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    if (!$data) {
+      return ['error' => 'Invalid data'];
+    }
+
+    if (!isset($data['comment']) || !isset($data['episodeId'])) {
+      return ['error' => 'Invalid data: comment or episodeId has not been passed'];
+    }
+
+    $token = BearerToken::getBearerToken();
+
+    if (!$token) {
+      return ['error' => 'Invalid token'];
+    }
+
+    try {
+      $result = Podcast::send_comment(
+        $data['comment'],
+        $data['episodeId'],
+        "",
+        $token
+      );
+      return ["result" => $result];
+    } catch (\Exception $e) {
+      return ['error' => $e->getMessage()];
+    }
+  }
+
+  public function remove_comment()
+  {
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    if (!$data) {
+      return ['error' => 'Invalid data'];
+    }
+
+    if (!isset($data['commentId']) || !isset($data['episodeId'])) {
+      return ['error' => 'Invalid data: comment or episodeId has not been passed'];
+    }
+
+    $token = BearerToken::getBearerToken();
+
+    if (!$token) {
+      return ['error' => 'Invalid token'];
+    }
+
+    try {
+      $result = Podcast::remove_comment(
+        $data['commentId'],
+        $data['episodeId'],
+        $token
+      );
+      return ["result" => $result];
     } catch (\Exception $e) {
       return ['error' => $e->getMessage()];
     }

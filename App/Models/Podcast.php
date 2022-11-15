@@ -49,7 +49,33 @@ class Podcast
     if (Cache::exist("favoritos-$token")) {
       Cache::remove("favoritos-$token");
     }
-    
+
+    return json_decode($data);
+  }
+
+  public static function send_comment($comentario, $idEpisodio, $idComentarioResposta = "",  $token)
+  {
+    $data = Api::post(\SACOCHEIO_API_BASE_URL . "comentarios", [
+      "comentario" => $comentario,
+      "idComentarioResposta" => $idComentarioResposta,
+      "idEpisodio" => $idEpisodio,
+    ], $token);
+
+    if (Cache::exist("comments-$idEpisodio")) {
+      Cache::remove("comments-$idEpisodio");
+    }
+
+    return json_decode($data);
+  }
+
+  public static function remove_comment($commentId, $episodeId, $token)
+  {
+    $data = Api::delete(\SACOCHEIO_API_BASE_URL . "comentarios/$commentId", $token);
+
+    if (Cache::exist("comments-$episodeId")) {
+      Cache::remove("comments-$episodeId");
+    }
+
     return json_decode($data);
   }
 

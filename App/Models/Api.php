@@ -32,7 +32,7 @@ class Api
 
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-    if($token){
+    if ($token) {
       $authorization = "Authorization: Bearer $token";
       curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', $authorization]);
     }
@@ -42,5 +42,28 @@ class Api
     curl_close($ch);
 
     return $response;
+  }
+
+  public static function delete($url, $token = null)
+  {
+    $ch = curl_init();
+
+    $authorization = "Authorization: Bearer $token";
+
+
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt(
+      $ch,
+      CURLOPT_HTTPHEADER,
+      ['Content-Type:application/json', $authorization]
+    );
+
+    $result = curl_exec($ch);
+
+    curl_close($ch);
+
+    return $result;
   }
 }
