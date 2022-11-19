@@ -136,6 +136,26 @@ class PodcastService
     return $podcast;
   }
 
+  public function comments($episodeId = null)
+  {
+    if (!$episodeId) return ['error' => 'No episode id provided'];
+
+
+    $token = BearerToken::getBearerToken();
+
+    if (!$token)  return ['error' => 'Invalid token'];
+
+
+    $comments_data = Podcast::comments($episodeId, $token);
+
+    $comments = ['data' => [], 'length' => 0];
+
+    $comments["data"] = $comments_data;
+    $comments["length"] = \count($comments_data);
+
+    return $comments;
+  }
+
   public function favorites($limit = null)
   {
     $token = BearerToken::getBearerToken();

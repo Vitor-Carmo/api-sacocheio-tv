@@ -235,7 +235,7 @@ class PodcastServiceTest extends TestCase
   public function testShouldSendCommentAndRemove()
   {
     $episodeId = 598; // acervo saco cheio
-    $comment = "hello";
+    $my_comment = "hello";
 
     $user = $this->getUser();
 
@@ -244,7 +244,7 @@ class PodcastServiceTest extends TestCase
 
     $result = Api::post(\LOCAL_BASE_URL_API . "podcast/send_comment", [
       "episodeId" => $episodeId,
-      "comment" => $comment
+      "comment" => $my_comment
     ], $token);
 
     $result = json_decode($result);
@@ -265,25 +265,24 @@ class PodcastServiceTest extends TestCase
     $token = $user->token;
     $this->assertIsString($token);
 
-    $episode = Api::get(\LOCAL_BASE_URL_API . "/podcast/episode/$podcast/$slug", $token);
+    $comment = Api::get(\LOCAL_BASE_URL_API . "/podcast/comments/$episodeId", $token);
 
-    $episode = json_decode($episode);
+    $comment = json_decode($comment);
 
-    $this->assertIsObject($episode);
-    $this->assertObjectHasAttribute('status', $episode);
-    $this->assertSame($episode->status, true);
-    $this->assertObjectHasAttribute('data', $episode);
-    $this->assertIsObject($episode->data);
-    $this->assertObjectHasAttribute('comments', $episode->data);
-    $this->assertIsObject($episode->data->comments);
-    $this->assertObjectHasAttribute('data', $episode->data->comments);
-    $this->assertObjectHasAttribute('length', $episode->data->comments);
-    $this->assertIsArray($episode->data->comments->data);
+    $this->assertIsObject($comment);
+    $this->assertObjectHasAttribute('status', $comment);
+    $this->assertSame($comment->status, true);
+    $this->assertObjectHasAttribute('data', $comment);
+    $this->assertIsObject($comment->data);
+    $this->assertObjectHasAttribute('data', $comment->data);
+    $this->assertIsArray($comment->data->data);
+    $this->assertObjectHasAttribute('length', $comment->data);
+    $this->assertIsInt($comment->data->length);
 
     $founded = false;
 
-    foreach ($episode->data->comments->data as $commentContent) {
-      if ($commentContent->comentario === $comment) {
+    foreach ($comment->data->data as $commentContent) {
+      if ($commentContent->comentario === $my_comment) {
         $founded = true;
         $removedComment =  Api::post(
           \LOCAL_BASE_URL_API . "/podcast/remove_comment",
@@ -299,7 +298,7 @@ class PodcastServiceTest extends TestCase
         $this->assertIsObject($removedComment);
         $this->assertObjectHasAttribute('status', $removedComment);
         $this->assertSame($removedComment->status, true);
-        $this->assertObjectHasAttribute('data', $episode);
+        $this->assertObjectHasAttribute('data', $removedComment);
         $this->assertIsObject($removedComment->data);
         $this->assertObjectHasAttribute('result', $removedComment->data);
         $this->assertIsBool($removedComment->data->result);
@@ -309,5 +308,51 @@ class PodcastServiceTest extends TestCase
     }
 
     $this->assertSame($founded, true);
+  }
+
+  public function testShouldListComments()
+  {
+    $episodeId = 598;
+
+    $user = $this->getUser();
+
+    $token = $user->token;
+    $this->assertIsString($token);
+
+
+    $comment = Api::get(\LOCAL_BASE_URL_API . "/podcast/comments/$episodeId", $token);
+
+    $comment = json_decode($comment);
+
+    $this->assertIsObject($comment);
+    $this->assertObjectHasAttribute('status', $comment);
+    $this->assertSame($comment->status, true);
+    $this->assertObjectHasAttribute('data', $comment);
+    $this->assertIsObject($comment->data);
+    $this->assertObjectHasAttribute('data', $comment->data);
+    $this->assertIsArray($comment->data->data);
+    $this->assertObjectHasAttribute('length', $comment->data);
+    $this->assertIsInt($comment->data->length);
+  }
+
+  public function testShouldNotListComments()
+  {
+    $user = $this->getUser();
+
+    $token = $user->token;
+    $this->assertIsString($token);
+
+
+    $comment = Api::get(\LOCAL_BASE_URL_API . "/podcast/comments", $token);
+
+    $comment = json_decode($comment);
+
+    $this->assertIsObject($comment);
+    $this->assertObjectHasAttribute('status', $comment);
+    $this->assertSame($comment->status, true);
+    $this->assertObjectHasAttribute('data', $comment);
+    $this->assertIsObject($comment->data);
+    $this->assertObjectHasAttribute('error', $comment->data);
+    $this->assertIsString($comment->data->error);
   }
 }
