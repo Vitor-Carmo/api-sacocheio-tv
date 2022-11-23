@@ -237,6 +237,37 @@ class PodcastService
     }
   }
 
+  public function answer_comment()
+  {
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    if (!$data) {
+      return ['error' => 'Invalid data'];
+    }
+
+    if (!isset($data['comment']) || !isset($data['episodeId']) || !isset($data['answerId'])) {
+      return ['error' => 'Invalid data: comment, episodeId or answerId has not been passed'];
+    }
+
+    $token = BearerToken::getBearerToken();
+
+    if (!$token) {
+      return ['error' => 'Invalid token'];
+    }
+
+    try {
+      $result = Podcast::send_comment(
+        $data['comment'],
+        $data['episodeId'],
+        $data['answerId'],
+        $token
+      );
+      return ["result" => $result];
+    } catch (\Exception $e) {
+      return ['error' => $e->getMessage()];
+    }
+  }
+
   public function remove_comment()
   {
     $data = json_decode(file_get_contents('php://input'), true);

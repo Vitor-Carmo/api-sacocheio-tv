@@ -232,7 +232,7 @@ class PodcastServiceTest extends TestCase
     $this->assertSame($result->data->result, true);
   }
 
-  public function testShouldSendCommentAndRemove()
+  public function testShouldSendCommentAnswerCommentAndRemove()
   {
     $episodeId = 598; // acervo saco cheio
     $my_comment = "hello";
@@ -256,9 +256,6 @@ class PodcastServiceTest extends TestCase
     $this->assertIsObject($result->data);
     $this->assertObjectHasAttribute('result', $result->data);
     $this->assertSame($result->data->result, true);
-
-    $podcast =  "acervopodcastsacocheio";
-    $slug = "especial-copa-do-mundo-2018-1";
 
     $user = $this->getUser();
 
@@ -284,6 +281,46 @@ class PodcastServiceTest extends TestCase
     foreach ($comment->data->data as $commentContent) {
       if ($commentContent->comentario === $my_comment) {
         $founded = true;
+
+        $answer_result = Api::post(\LOCAL_BASE_URL_API . "podcast/answer_comment", [
+          "episodeId" => $episodeId,
+          "comment" => $my_comment,
+          "answerId" => $commentContent->cod,
+        ], $token);
+
+        $answer_result = json_decode($answer_result);
+
+        $this->assertIsObject($answer_result);
+        $this->assertObjectHasAttribute('status', $answer_result);
+        $this->assertSame($answer_result->status, true);
+        $this->assertObjectHasAttribute('data', $answer_result);
+        $this->assertIsObject($answer_result->data);
+        $this->assertObjectHasAttribute('result', $answer_result->data);
+        $this->assertSame($answer_result->data->result, true);
+
+
+        $comment = Api::get(\LOCAL_BASE_URL_API . "/podcast/comments/$episodeId", $token);
+
+        $comment = json_decode($comment);
+
+        $this->assertIsObject($comment);
+        $this->assertObjectHasAttribute('status', $comment);
+        $this->assertSame($comment->status, true);
+        $this->assertObjectHasAttribute('data', $comment);
+        $this->assertIsObject($comment->data);
+        $this->assertObjectHasAttribute('data', $comment->data);
+        $this->assertIsArray($comment->data->data);
+        $this->assertObjectHasAttribute('length', $comment->data);
+        $this->assertIsInt($comment->data->length);
+
+
+        foreach ($comment->data->data as $answerContent) {
+          if ($answerContent->comentario === $my_comment) {
+            $this->assertNotSame(\count($answerContent->respostas), 0);
+            break;
+          }
+        }
+
         $removedComment =  Api::post(
           \LOCAL_BASE_URL_API . "/podcast/remove_comment",
           [
