@@ -23,7 +23,7 @@ class Podcast
 
   public static function episode($slug, $token)
   {
-    return self::api_get_with_cache("$slug-$token",  "episodios/getBySlug/$slug", $token);
+    return self::api_get_with_cache("$slug-$token",  "episodios/getBySlug/" . urlencode($slug), $token);
   }
 
   public static function comments($code, $token)
