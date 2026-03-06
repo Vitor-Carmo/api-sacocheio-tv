@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Logo](path-to-logo) <!-- TODO: Add project logo -->
+![Logo](http://raw.githubusercontent.com/Vitor-Carmo/app-sacocheio-tv/refs/heads/main/assets/icon.png) <!-- TODO: Add project logo -->
 
 [![GitHub stars](https://img.shields.io/github/stars/Vitor-Carmo/api-sacocheio-tv?style=for-the-badge)](https://github.com/Vitor-Carmo/api-sacocheio-tv/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/Vitor-Carmo/api-sacocheio-tv?style=for-the-badge)](https://github.com/Vitor-Carmo/api-sacocheio-tv/network)
